@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Syne', sans-serif;
+  --font-mono-custom: 'DM Mono', monospace;
+  --font-body: 'Instrument Sans', sans-serif;
+
+  --color-green: #00d97e;
+  --color-green-dark: #00c070;
+  --color-blue: #0ea5e9;
+  --color-bg: #0a0c0f;
+  --color-surface: #111318;
+  --color-surface2: #0e1115;
+  --color-border: #232830;
+  --color-text: #e8edf5;
+  --color-muted: #6b7587;
+
+  --animate-float: float 4s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.7s ease forwards;
+  --animate-scan: scan-line 3s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,217,126,0.15); }
+  50% { box-shadow: 0 0 40px rgba(0,217,126,0.35); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: #0a0c0f;
+  color: #e8edf5;
+  font-family: 'Instrument Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0c0f; }
+::-webkit-scrollbar-thumb { background: #232830; border-radius: 3px; }
