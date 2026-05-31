@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   Database, GitBranch, Code2, Shield, Zap,
-  ChevronRight, Check, X, Menu, ArrowRight,
+  ChevronRight, Check, X, Menu,
   Table2, Layers, Lock, ChevronDown, Download
 } from 'lucide-react'
 
