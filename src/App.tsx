@@ -360,12 +360,21 @@ function Screenshots() {
 }
 
 // ─── Pricing ──────────────────────────────────────────────────────────────────
+declare global {
+  interface Window {
+    umami?: { track: (event: string) => void }
+  }
+}
 function Pricing() {
+  
   const [downloading, setDownloading] = useState(false)
   const [done, setDone] = useState(false)
 
   const handleDownload = () => {
     setDownloading(true)
+    if (typeof window.umami !== 'undefined') {
+    window.umami.track('download-click')
+  }
     const link = document.createElement('a')
     link.href = '/Free_My_SQL.jar'
     link.download = 'Free_My_SQL.jar'
