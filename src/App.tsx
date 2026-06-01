@@ -462,13 +462,7 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            <div style={{ padding: 16, background: '#0a0c0f', borderRadius: 12, border: '1px solid #232830' }}>
-              <Lock size={18} color="#6b7587" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 13, color: '#6b7587', lineHeight: 1.6 }}>
-                Beta users will be grandfathered in when a paid version launches.{' '}
-                <span style={{ color: '#e8edf5', fontWeight: 500 }}>Your access is permanent.</span>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
