@@ -521,6 +521,66 @@ function FAQ() {
   )
 }
 
+function Feedback() {
+  const [msg, setMsg] = useState('')
+  const [sent, setSent] = useState(false)
+
+const handleSubmit = async () => {
+  if (!msg.trim()) return
+  await fetch('https://formspree.io/f/xvzyezqy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: msg })
+  })
+  setSent(true)
+}
+
+  return (
+    <section style={{ padding: '96px 0', borderTop: '1px solid #232830' }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '0 24px', textAlign: 'center' }}>
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#6b7587', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Feedback</span>
+        <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 44px)', color: '#e8edf5', marginTop: 16, marginBottom: 12 }}>
+          Tell me what's <span style={{ color: '#00d97e' }}>missing.</span>
+        </h2>
+        <p style={{ color: '#6b7587', fontSize: 15, marginBottom: 32 }}>Beta feedback directly shapes what gets built next.</p>
+
+        {!sent ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <textarea
+              value={msg}
+              onChange={e => setMsg(e.target.value)}
+              placeholder="What's broken, missing, or confusing?"
+              rows={5}
+              style={{
+                background: '#111318', border: '1px solid #232830', borderRadius: 12,
+                color: '#e8edf5', fontSize: 14, padding: '14px 16px',
+                resize: 'vertical', outline: 'none', fontFamily: 'inherit',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(0,217,126,0.4)')}
+              onBlur={e => (e.currentTarget.style.borderColor = '#232830')}
+            />
+            <button onClick={handleSubmit} style={{
+              background: '#00d97e', color: '#0a0c0f', fontWeight: 600,
+              fontSize: 15, padding: '13px 0', borderRadius: 12,
+              border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#00c070'; e.currentTarget.style.transform = 'scale(1.02)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#00d97e'; e.currentTarget.style.transform = 'scale(1)' }}>
+              Send Feedback
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: 'rgba(0,217,126,0.08)', border: '1px solid rgba(0,217,126,0.25)', borderRadius: 14, padding: 32 }}>
+            <Check size={32} color="#00d97e" style={{ margin: '0 auto 12px' }} />
+            <div style={{ color: '#e8edf5', fontWeight: 600 }}>Thanks — your mail client should have opened.</div>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
@@ -587,6 +647,7 @@ export default function App() {
         <Screenshots />
         <Pricing />
         <FAQ />
+        <Feedback />
         <Footer />
       </div>
     </>
