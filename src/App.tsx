@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   Database, GitBranch, Code2, Shield, Zap,
   ChevronRight, Check, X, Menu,
-  Table2, Layers, Lock, ChevronDown, Download
+  Table2, Layers, ChevronDown, Download
 } from 'lucide-react'
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
