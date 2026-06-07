@@ -358,6 +358,238 @@ function Screenshots() {
     </section>
   )
 }
+// ─── V2 Changelog ─────────────────────────────────────────────────────────────
+function V2Changelog() {
+  const [active, setActive] = useState(0)
+  const [prev2, setPrev2] = useState<number | null>(null)
+  const [direction, setDirection] = useState<'left' | 'right'>('right')
+  const [dragging, setDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [dragDelta, setDragDelta] = useState(0)
+
+  const changes = [
+    {
+      title: 'Improved Layout Algorithm',
+      desc: 'Smarter force-directed positioning keeps related tables closer together with far less overlap out of the box. Tables that share foreign keys are pulled toward each other automatically.',
+      img: '/layout.png',
+    },
+    {
+      title: 'Upgraded Schema Sidebar',
+      desc: 'Collapsible sections, inline search, table count badges, and separate Local / Remote schema groups. Generate login code right from the schema context menu — no need to dig into each table.',
+      img: '/sidebar.png',
+    },
+    {
+      title: 'Integrated Feedback System',
+      desc: 'Send feedback with a star rating directly from inside the app — no browser, no email client, no interruption to your workflow. Beta feedback shapes what gets built next.',
+      img: '/feedback.png',
+    },
+    {
+      title: 'Redesigned Login Screen',
+      desc: 'Connection profiles, separate Host and Port fields, User Initials, and a cleaner layout make connecting to local or remote MySQL instant. Save multiple profiles and switch between them in one click.',
+      img: '/login.png',
+    },
+  ]
+
+  const goTo = (i: number, dir: 'left' | 'right') => {
+    setPrev2(active)
+    setDirection(dir)
+    setActive((i + changes.length) % changes.length)
+  }
+  const goPrev = () => goTo(active - 1, 'left')
+  const goNext = () => goTo(active + 1, 'right')
+
+  const onMouseDown = (e: React.MouseEvent) => { setDragging(true); setStartX(e.clientX); setDragDelta(0) }
+  const onMouseMove = (e: React.MouseEvent) => { if (dragging) setDragDelta(e.clientX - startX) }
+  const onMouseUp = () => {
+    if (!dragging) return
+    if (dragDelta < -60) goNext()
+    else if (dragDelta > 60) goPrev()
+    setDragging(false); setDragDelta(0)
+  }
+  const onTouchStart = (e: React.TouchEvent) => { setDragging(true); setStartX(e.touches[0].clientX); setDragDelta(0) }
+  const onTouchMove = (e: React.TouchEvent) => { if (dragging) setDragDelta(e.touches[0].clientX - startX) }
+  const onTouchEnd = () => {
+    if (!dragging) return
+    if (dragDelta < -60) goNext()
+    else if (dragDelta > 60) goPrev()
+    setDragging(false); setDragDelta(0)
+  }
+
+  const enterAnim = direction === 'right' ? 'slideInFromRight' : 'slideInFromLeft'
+  const exitAnim  = direction === 'right' ? 'slideOutToLeft'  : 'slideOutToRight'
+
+  return (
+    <>
+      <style>{`
+        @keyframes slideInFromRight {
+          from { opacity: 0; transform: translateX(60px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInFromLeft {
+          from { opacity: 0; transform: translateX(-60px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideOutToLeft {
+          from { opacity: 1; transform: translateX(0); }
+          to   { opacity: 0; transform: translateX(-60px); }
+        }
+        @keyframes slideOutToRight {
+          from { opacity: 1; transform: translateX(0); }
+          to   { opacity: 0; transform: translateX(60px); }
+        }
+      `}</style>
+
+      <section style={{ padding: '80px 0', borderTop: '1px solid #232830' }}>
+        <div style={{ maxWidth: 1152, margin: '0 auto', padding: '0 24px' }}>
+
+          {/* Header + nav centered together */}
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,217,126,0.1)', border: '1px solid rgba(0,217,126,0.25)', borderRadius: 999, padding: '5px 16px', marginBottom: 16 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00d97e', display: 'inline-block', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#00d97e', fontWeight: 600 }}>v2.0 — What's New</span>
+            </div>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 48px)', color: '#e8edf5', lineHeight: 1.15 }}>
+              A much better <span style={{ color: '#00d97e' }}>everything.</span>
+            </h2>
+            <p style={{ marginTop: 12, color: '#6b7587', fontSize: 15, marginBottom: 32 }}>
+              Every part of the app got a meaningful upgrade in v2.
+            </p>
+
+            {/* Nav arrows + dots centered under title */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+              <button onClick={goPrev} style={{
+                width: 40, height: 40, borderRadius: '50%', border: '1px solid #232830',
+                background: '#111318', color: '#e8edf5', fontSize: 16, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,217,126,0.4)'; e.currentTarget.style.background = '#13171f' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#232830'; e.currentTarget.style.background = '#111318' }}>
+                ←
+              </button>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                {changes.map((_, i) => (
+                  <button key={i} onClick={() => goTo(i, i > active ? 'right' : 'left')} style={{
+                    height: 6, borderRadius: 3, border: 'none', cursor: 'pointer',
+                    transition: 'all 0.2s', padding: 0,
+                    width: active === i ? 32 : 12,
+                    background: active === i ? '#00d97e' : '#232830',
+                  }} />
+                ))}
+              </div>
+
+              <button onClick={goNext} style={{
+                width: 40, height: 40, borderRadius: '50%', border: '1px solid #232830',
+                background: '#111318', color: '#e8edf5', fontSize: 16, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,217,126,0.4)'; e.currentTarget.style.background = '#13171f' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#232830'; e.currentTarget.style.background = '#111318' }}>
+                →
+              </button>
+            </div>
+          </div>
+
+          {/* Slide area — overflow hidden so exit anim doesn't show */}
+          <div style={{ position: 'relative', overflow: 'hidden' }}>
+
+            {/* Exiting slide */}
+            {prev2 !== null && prev2 !== active && (
+              <div key={`exit-${prev2}`} style={{
+                position: 'absolute', top: 0, left: 0, right: 0,
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start',
+                animation: `${exitAnim} 0.35s cubic-bezier(0.22,1,0.36,1) both`,
+                pointerEvents: 'none',
+              }} className="screenshots-grid">
+                <div style={{ borderRadius: 16, background: '#111318', border: '1px solid #232830', overflow: 'hidden', maxHeight: 520 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderBottom: '1px solid #232830', background: '#0e1115' }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} />
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#febc2e' }} />
+                      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
+                    </div>
+                    <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#6b7587', marginLeft: 8 }}>Free My Query</span>
+                  </div>
+                  <div style={{ background: '#e8e8e8', overflow: 'hidden', maxHeight: 480 }}>
+                    <img src={changes[prev2].img} alt="" draggable={false} style={{ width: '100%', display: 'block', objectFit: 'cover', objectPosition: 'top', maxHeight: 480 }} />
+                  </div>
+                </div>
+                <div style={{ paddingTop: 0 }}>
+                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(22px, 3vw, 36px)', color: '#e8edf5', lineHeight: 1.2, marginBottom: 18 }}>
+                    {changes[prev2].title}
+                  </h3>
+                  <p style={{ fontSize: 15, color: '#6b7587', lineHeight: 1.85 }}>{changes[prev2].desc}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Entering slide */}
+            <div key={`enter-${active}`} style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start',
+              animation: `${enterAnim} 0.4s cubic-bezier(0.22,1,0.36,1) both`,
+            }} className="screenshots-grid">
+
+              {/* Image */}
+              <div
+                onMouseDown={onMouseDown}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+                onMouseLeave={onMouseUp}
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+                style={{
+                  borderRadius: 16, background: '#111318', border: '1px solid #232830',
+                  boxShadow: '0 40px 80px rgba(0,0,0,0.5)', overflow: 'hidden',
+                  cursor: dragging ? 'grabbing' : 'grab', userSelect: 'none', maxHeight: 520,
+                }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderBottom: '1px solid #232830', background: '#0e1115' }}>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} />
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#febc2e' }} />
+                    <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
+                  </div>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#6b7587', marginLeft: 8 }}>Free My Query</span>
+                </div>
+                <div style={{ background: '#e8e8e8', overflow: 'hidden', maxHeight: 480 }}>
+                  <img
+                    src={changes[active].img}
+                    alt={changes[active].title}
+                    draggable={false}
+                    style={{
+                      width: '100%', display: 'block',
+                      objectFit: 'cover', objectPosition: 'top', maxHeight: 480,
+                      transform: dragging ? `translateX(${dragDelta * 0.06}px)` : 'translateX(0)',
+                      transition: dragging ? 'none' : 'transform 0.3s',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Text — top aligned */}
+              <div style={{ paddingTop: 0 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,217,126,0.1)', border: '1px solid rgba(0,217,126,0.2)', borderRadius: 999, padding: '4px 14px', marginBottom: 20 }}>
+                  <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#00d97e' }}>
+                    {active + 1} of {changes.length}
+                  </span>
+                </div>
+                <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(22px, 3vw, 36px)', color: '#e8edf5', lineHeight: 1.2, marginBottom: 18 }}>
+                  {changes[active].title}
+                </h3>
+                <p style={{ fontSize: 15, color: '#6b7587', lineHeight: 1.85 }}>
+                  {changes[active].desc}
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </>
+  )
+}
 
 // ─── Pricing ──────────────────────────────────────────────────────────────────
 declare global {
@@ -365,23 +597,36 @@ declare global {
     umami?: { track: (event: string) => void }
   }
 }
+
 function Pricing() {
-  
   const [downloading, setDownloading] = useState(false)
   const [done, setDone] = useState(false)
+  const [downloadingV1, setDownloadingV1] = useState(false)
+  const [doneV1, setDoneV1] = useState(false)
 
   const handleDownload = () => {
     setDownloading(true)
     if (typeof window.umami !== 'undefined') {
-    window.umami.track('download-click')
+      window.umami.track('download-click')
+    }
+    const link = document.createElement('a')
+    link.href = '/Free_My_SQL_Setup.exe'
+    link.download = 'Free_My_SQL_Setup.exe'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    setTimeout(() => { setDownloading(false); setDone(true) }, 1000)
   }
+
+  const handleDownloadV1 = () => {
+    setDownloadingV1(true)
     const link = document.createElement('a')
     link.href = '/Free_My_SQL.jar'
     link.download = 'Free_My_SQL.jar'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    setTimeout(() => { setDownloading(false); setDone(true) }, 1000)
+    setTimeout(() => { setDownloadingV1(false); setDoneV1(true) }, 1000)
   }
 
   const included = ['Full desktop app (Windows)', 'Unlimited schemas & tables', 'Live ER diagram editor', 'No-SQL data management', 'Code generator (Java / BCrypt)', 'All future updates — free', 'Works 100% offline', 'Email support']
@@ -399,6 +644,7 @@ function Pricing() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, maxWidth: 800, margin: '0 auto' }}>
+
           {/* Main card */}
           <div style={{ position: 'relative', padding: 36, background: '#111318', border: '1px solid rgba(0,217,126,0.4)', borderRadius: 24, boxShadow: '0 0 40px rgba(0,217,126,0.08)' }}>
             <div style={{ position: 'absolute', top: 16, right: 16, background: '#00d97e', color: '#0a0c0f', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999, letterSpacing: '0.05em' }}>
@@ -422,8 +668,9 @@ function Pricing() {
               ))}
             </ul>
 
+            {/* V2 download */}
             {!done ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <button onClick={handleDownload} disabled={downloading} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                   background: downloading ? '#00b368' : '#00d97e',
@@ -434,10 +681,11 @@ function Pricing() {
                 }}
                   onMouseEnter={e => { if (!downloading) { e.currentTarget.style.background = '#00c070'; e.currentTarget.style.transform = 'scale(1.02)' } }}
                   onMouseLeave={e => { e.currentTarget.style.background = downloading ? '#00b368' : '#00d97e'; e.currentTarget.style.transform = 'scale(1)' }}>
-                  {downloading ? 'Preparing download…' : <><Download size={16} /> Download Free</>}
+                  {downloading ? 'Preparing download…' : <><Download size={16} /> Download v2 Free</>}
                 </button>
                 <p style={{ fontSize: 12, color: '#6b7587', textAlign: 'center', margin: 0 }}>
-                  JAR file · Java 17+ required · Windows
+                  <span style={{ background: 'rgba(0,217,126,0.15)', color: '#00d97e', borderRadius: 4, padding: '1px 6px', fontSize: 11, fontWeight: 600 }}>v2</span>
+                  {' '}EXE installer · No Java required · Windows
                 </p>
               </div>
             ) : (
@@ -446,6 +694,32 @@ function Pricing() {
                 <div style={{ color: '#e8edf5', fontWeight: 600, marginBottom: 4 }}>Download started!</div>
               </div>
             )}
+
+            {/* V1 download */}
+            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #232830' }}>
+              {!doneV1 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <button onClick={handleDownloadV1} disabled={downloadingV1} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    background: 'transparent',
+                    color: '#6b7587', fontWeight: 500, fontSize: 13,
+                    padding: '9px 0', borderRadius: 10, border: '1px solid #232830',
+                    cursor: downloadingV1 ? 'wait' : 'pointer',
+                    transition: 'all 0.2s', width: '100%',
+                    textDecoration: 'line-through', opacity: 0.55,
+                  }}
+                    onMouseEnter={e => { if (!downloadingV1) { e.currentTarget.style.borderColor = '#6b7587'; e.currentTarget.style.opacity = '0.85' } }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#232830'; e.currentTarget.style.opacity = '0.55' }}>
+                    {downloadingV1 ? 'Preparing…' : <><Download size={13} /> Download v1 (legacy)</>}
+                  </button>
+                  <p style={{ fontSize: 11, color: '#6b7587', textAlign: 'center', margin: 0, opacity: 0.45, textDecoration: 'line-through' }}>
+                    JAR file · Java 17+ required · Windows
+                  </p>
+                </div>
+              ) : (
+                <p style={{ fontSize: 12, color: '#6b7587', textAlign: 'center', margin: 0 }}>v1 download started.</p>
+              )}
+            </div>
           </div>
 
           {/* What you skip */}
@@ -462,7 +736,6 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            
           </div>
         </div>
       </div>
@@ -632,6 +905,10 @@ export default function App() {
         @media (min-width: 769px) {
           .show-mobile { display: none !important; }
         }
+          @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
       `}</style>
       <div style={{ minHeight: '100vh', background: '#0a0c0f' }}>
         <Nav />
@@ -639,6 +916,7 @@ export default function App() {
         <Problem />
         <Features />
         <Screenshots />
+        <V2Changelog />
         <Pricing />
         <FAQ />
         <Feedback />
