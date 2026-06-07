@@ -610,8 +610,8 @@ function Pricing() {
       window.umami.track('download-click')
     }
     const link = document.createElement('a')
-    link.href = '/Free_My_SQL_Setup.exe'
-    link.download = 'Free_My_SQL_Setup.exe'
+    link.href = 'https://github.com/PeanutSoup55/FreeMy-SQL/releases/latest/download/Free_My_SQL_Setup-1.0.exe'
+    link.download = 'Free_My_SQL_Setup-1.0.exe'
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
