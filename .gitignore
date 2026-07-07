@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env.local
+
+# Supabase CLI local state (not the functions themselves)
+supabase/.temp
+supabase/.branches
+supabase/.env

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import {
   Database, GitBranch, Code2, Shield, Zap,
-  ChevronRight, Check, X, Menu,
+  ChevronRight, Check, Menu,
   Table2, Layers, ChevronDown, Download
 } from 'lucide-react'
+import { SubscribeButton } from './SubscribeButton'
+import './supabaseClient';
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 function Nav() {
@@ -56,7 +58,7 @@ function Nav() {
           style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', transition: 'background 0.2s' }}
           onMouseEnter={e => (e.currentTarget.style.background = '#00c070')}
           onMouseLeave={e => (e.currentTarget.style.background = '#00d97e')}>
-          Get Early Access <ChevronRight size={16} />
+          Subscribe <ChevronRight size={16} />
         </a>
 
         {/* Hamburger */}
@@ -77,7 +79,7 @@ function Nav() {
           ))}
           <a href="#pricing"
             style={{ background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '10px 16px', borderRadius: 8, textDecoration: 'none', textAlign: 'center' }}>
-            Get Early Access
+            Subscribe
           </a>
         </div>
       )}
@@ -112,7 +114,7 @@ function Hero() {
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#111318', border: '1px solid #232830', borderRadius: 999, padding: '6px 16px', marginBottom: 32 }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#00d97e', display: 'inline-block', animation: 'pulse 2s infinite' }} />
           <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#6b7587' }}>
-            Beta — Free to download · Free updates
+            $10/month · Cancel anytime
           </span>
         </div>
 
@@ -152,7 +154,7 @@ function Hero() {
           }}
             onMouseEnter={e => { e.currentTarget.style.background = '#00c070'; e.currentTarget.style.transform = 'scale(1.03)' }}
             onMouseLeave={e => { e.currentTarget.style.background = '#00d97e'; e.currentTarget.style.transform = 'scale(1)' }}>
-            Download Free <Download size={18} />
+            Get Started <ChevronRight size={18} />
           </a>
           <a href="#screenshots" style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -246,7 +248,7 @@ const features = [
   { icon: Code2,     color: '#a78bfa', title: 'Code Generator',      desc: 'Generate production-ready login and auth code from your schema. Pick your identifier and password field — get Java/BCrypt code instantly.' },
   { icon: Layers,    color: '#fb923c', title: 'Multi-Schema',        desc: 'Switch between all your local schemas in one sidebar. Perfect for juggling bank_test, company, hotel_test, and more without losing your place.' },
   { icon: Zap,       color: '#facc15', title: 'Instant Connection',  desc: 'Connect to localhost or any remote MySQL instance. Store credentials securely. Reconnect in one click.' },
-  { icon: Shield,    color: '#34d399', title: 'Fully Offline',       desc: 'Works without an internet connection. Your database data never leaves your machine. No cloud sync, no subscriptions after purchase.' },
+  { icon: Shield,    color: '#34d399', title: 'Fully Offline',       desc: 'Works without an internet connection. Your database data never leaves your machine — no cloud sync, ever.' },
 ]
 
 function Features() {
@@ -599,13 +601,19 @@ declare global {
 }
 
 function Pricing() {
-  const [downloading, setDownloading] = useState(false)
-  const [done, setDone] = useState(false)
   const [downloadingV1, setDownloadingV1] = useState(false)
   const [doneV1, setDoneV1] = useState(false)
+  const [checkoutStatus, setCheckoutStatus] = useState<'success' | 'cancelled' | null>(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const status = params.get('checkout')
+    if (status === 'success' || status === 'cancelled') {
+      setCheckoutStatus(status)
+    }
+  }, [])
 
   const handleDownload = () => {
-    setDownloading(true)
     if (typeof window.umami !== 'undefined') {
       window.umami.track('download-click')
     }
@@ -615,7 +623,6 @@ function Pricing() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    setTimeout(() => { setDownloading(false); setDone(true) }, 1000)
   }
 
   const handleDownloadV1 = () => {
@@ -629,8 +636,16 @@ function Pricing() {
     setTimeout(() => { setDownloadingV1(false); setDoneV1(true) }, 1000)
   }
 
-  const included = ['Full desktop app (Windows)', 'Unlimited schemas & tables', 'Live ER diagram editor', 'No-SQL data management', 'Code generator (Java / BCrypt)', 'All future updates — free', 'Works 100% offline', 'Email support']
-  const excluded = ['Monthly fees', 'Per-seat pricing', 'Cloud data storage', 'Account required to run', 'Feature paywalls', 'Vendor lock-in']
+  const included = [
+    'Full desktop app (Windows)',
+    'Unlimited schemas & tables',
+    'Live ER diagram editor',
+    'No-SQL data management',
+    'Code generator (Java / BCrypt)',
+    'All future updates included',
+    'Works offline — 7-day grace period',
+    'Email support',
+  ]
 
   return (
     <section id="pricing" style={{ padding: '96px 0', borderTop: '1px solid #232830' }}>
@@ -638,25 +653,38 @@ function Pricing() {
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
           <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#6b7587', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Pricing</span>
           <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 48px)', color: '#e8edf5', marginTop: 16, lineHeight: 1.15 }}>
-            Download the free beta. <span style={{ color: '#00d97e' }}>Shape what comes next.</span>
+            One plan. <span style={{ color: '#00d97e' }}>Everything included.</span>
           </h2>
-          <p style={{ marginTop: 12, color: '#6b7587', fontSize: 16 }}>It's free while we're in beta. Try it, break it, and tell us what to build next.</p>
+          <p style={{ marginTop: 12, color: '#6b7587', fontSize: 16 }}>Simple monthly pricing. Cancel whenever you want.</p>
         </div>
+
+        {checkoutStatus === 'success' && (
+          <div style={{ maxWidth: 800, margin: '0 auto 32px', background: 'rgba(0,217,126,0.08)', border: '1px solid rgba(0,217,126,0.25)', borderRadius: 14, padding: 20, textAlign: 'center' }}>
+            <Check size={24} color="#00d97e" style={{ margin: '0 auto 8px' }} />
+            <div style={{ color: '#e8edf5', fontWeight: 600, fontSize: 14 }}>You're subscribed!</div>
+            <p style={{ color: '#6b7587', fontSize: 13, marginTop: 4 }}>Download the app below and sign in with the same email to activate it.</p>
+          </div>
+        )}
+        {checkoutStatus === 'cancelled' && (
+          <div style={{ maxWidth: 800, margin: '0 auto 32px', background: '#111318', border: '1px solid #232830', borderRadius: 14, padding: 20, textAlign: 'center' }}>
+            <p style={{ color: '#6b7587', fontSize: 13, margin: 0 }}>Checkout was cancelled — no charge was made.</p>
+          </div>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, maxWidth: 800, margin: '0 auto' }}>
 
-          {/* Main card */}
+          {/* Subscribe card */}
           <div style={{ position: 'relative', padding: 36, background: '#111318', border: '1px solid rgba(0,217,126,0.4)', borderRadius: 24, boxShadow: '0 0 40px rgba(0,217,126,0.08)' }}>
             <div style={{ position: 'absolute', top: 16, right: 16, background: '#00d97e', color: '#0a0c0f', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999, letterSpacing: '0.05em' }}>
-              FREE BETA
+              PRO
             </div>
             <div style={{ marginBottom: 28 }}>
-              <div style={{ color: '#6b7587', fontSize: 14, marginBottom: 4 }}>Beta Access</div>
+              <div style={{ color: '#6b7587', fontSize: 14, marginBottom: 4 }}>Monthly subscription</div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-                <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 56, color: '#e8edf5', lineHeight: 1 }}>$0</span>
-                <span style={{ color: '#6b7587', fontSize: 14, marginBottom: 8 }}>free</span>
+                <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 56, color: '#e8edf5', lineHeight: 1 }}>$10</span>
+                <span style={{ color: '#6b7587', fontSize: 14, marginBottom: 8 }}>/ month</span>
               </div>
-              <div style={{ fontSize: 12, color: '#6b7587', marginTop: 4 }}>Beta is free · Paid version planned post-launch</div>
+              <div style={{ fontSize: 12, color: '#6b7587', marginTop: 4 }}>Billed monthly · Cancel anytime</div>
             </div>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -668,34 +696,32 @@ function Pricing() {
               ))}
             </ul>
 
-            {/* V2 download */}
-            {!done ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <button onClick={handleDownload} disabled={downloading} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  background: downloading ? '#00b368' : '#00d97e',
-                  color: '#0a0c0f', fontWeight: 600, fontSize: 15,
-                  padding: '13px 0', borderRadius: 12, border: 'none',
-                  cursor: downloading ? 'wait' : 'pointer',
-                  transition: 'all 0.2s', width: '100%',
-                }}
-                  onMouseEnter={e => { if (!downloading) { e.currentTarget.style.background = '#00c070'; e.currentTarget.style.transform = 'scale(1.02)' } }}
-                  onMouseLeave={e => { e.currentTarget.style.background = downloading ? '#00b368' : '#00d97e'; e.currentTarget.style.transform = 'scale(1)' }}>
-                  {downloading ? 'Preparing download…' : <><Download size={16} /> Download v2 Free</>}
-                </button>
-                <p style={{ fontSize: 12, color: '#6b7587', textAlign: 'center', margin: 0 }}>
-                  <span style={{ background: 'rgba(0,217,126,0.15)', color: '#00d97e', borderRadius: 4, padding: '1px 6px', fontSize: 11, fontWeight: 600 }}>v2</span>
-                  {' '}EXE installer · No Java required · Windows
-                </p>
-              </div>
-            ) : (
-              <div style={{ background: 'rgba(0,217,126,0.08)', border: '1px solid rgba(0,217,126,0.25)', borderRadius: 14, padding: 24, textAlign: 'center' }}>
-                <Check size={32} color="#00d97e" style={{ margin: '0 auto 12px' }} />
-                <div style={{ color: '#e8edf5', fontWeight: 600, marginBottom: 4 }}>Download started!</div>
-              </div>
-            )}
+            <SubscribeButton priceLabel="$10/mo" />
+          </div>
 
-            {/* V1 download */}
+          {/* Already subscribed / download */}
+          <div style={{ padding: 36, background: '#111318', border: '1px solid #232830', borderRadius: 24, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ color: '#6b7587', fontSize: 14, marginBottom: 4 }}>Already subscribed?</div>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 24, color: '#e8edf5', marginBottom: 28, lineHeight: 1.3 }}>
+              Get the app.
+            </div>
+            <p style={{ fontSize: 14, color: '#6b7587', lineHeight: 1.7, marginBottom: 24 }}>
+              Download the installer, then sign in with your subscription email to unlock it.
+              Works offline for up to 7 days between checks.
+            </p>
+
+            <button onClick={handleDownload} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              background: 'transparent', border: '1px solid #232830', color: '#e8edf5',
+              fontWeight: 600, fontSize: 15, padding: '13px 0', borderRadius: 12,
+              cursor: 'pointer', transition: 'all 0.2s', width: '100%',
+            }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(0,217,126,0.4)')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = '#232830')}>
+              <Download size={16} /> Download for Windows
+            </button>
+
+            {/* V1 legacy download */}
             <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #232830' }}>
               {!doneV1 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -721,22 +747,6 @@ function Pricing() {
               )}
             </div>
           </div>
-
-          {/* What you skip */}
-          <div style={{ padding: 36, background: '#111318', border: '1px solid #232830', borderRadius: 24 }}>
-            <div style={{ color: '#6b7587', fontSize: 14, marginBottom: 4 }}>What you skip</div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 24, color: '#e8edf5', marginBottom: 28, lineHeight: 1.3 }}>
-              No subscriptions.<br />No surprises.
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {excluded.map(item => (
-                <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 14, color: '#6b7587' }}>
-                  <X size={16} color="rgba(248,113,113,0.7)" style={{ flexShrink: 0 }} />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
     </section>
@@ -746,11 +756,12 @@ function Pricing() {
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
 const faqs = [
   { q: 'What databases does Free My Query support?',  a: 'Currently MySQL only, connecting via JDBC. Localhost and remote connections are both supported. Credentials are stored securely in the app.' },
-  { q: 'Does it work without internet?',              a: 'Yes. The app is fully offline. It connects to your MySQL server directly — your schema data never leaves your machine.' },
-  { q: 'What does "free updates" mean exactly?',      a: 'You download once and receive all updates at no extra cost for as long as the app is in active development. No expiry, no upgrade fees during beta.' },
-  { q: 'What OS does it run on?',                     a: 'Currently Windows desktop. Mac and Linux builds are planned post-beta based on demand.' },
+  { q: 'Does it work without internet?',              a: 'Yes. Your MySQL connection itself is always local — your schema data never leaves your machine. The app checks your subscription periodically, and if you\'re offline it keeps working for up to 7 days before asking you to reconnect.' },
+  { q: 'Can I cancel anytime?',                       a: 'Yes. Cancel from your account at any time — you\'ll keep access until the end of the billing period you already paid for.' },
+  { q: 'What\'s included in the subscription?',       a: 'Everything: the full app, unlimited schemas, the ER diagram editor, the code generator, and every future update — no separate upgrade fees.' },
+  { q: 'What OS does it run on?',                      a: 'Currently Windows desktop. Mac and Linux builds are planned based on demand.' },
   { q: 'Can I use it on a production database?',      a: 'Yes — it reads live schema structure and data. Use with care on production. Read-only diagram mode is coming soon.' },
-  { q: 'What is the code generator for?',             a: 'It generates Java auth code (login, register, BCrypt hashing) tailored to your actual schema — saves hours of boilerplate.' },
+  { q: 'What is the code generator for?',              a: 'It generates Java auth code (login, register, BCrypt hashing) tailored to your actual schema — saves hours of boilerplate.' },
 ]
 
 function FAQ() {
