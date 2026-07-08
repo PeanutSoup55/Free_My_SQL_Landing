@@ -5,10 +5,25 @@ import {
   Table2, Layers, ChevronDown, Download
 } from 'lucide-react'
 import { SubscribeButton } from './SubscribeButton'
-import './supabaseClient';
+import { supabase } from './supabaseClient'
+import { SignUpPage } from './pages/SignUpPage'
+import { LoginPage } from './pages/LoginPage'
+import { AccountPage } from './pages/AccountPage'
+import { DocsPage } from './pages/DocsPage'
+import { SupportPage } from './pages/SupportPage'
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav() {
+function Nav({
+  isLoggedIn,
+  onLoginClick,
+  onSignUpClick,
+  onAccountClick,
+}: {
+  isLoggedIn: boolean
+  onLoginClick: () => void
+  onSignUpClick: () => void
+  onAccountClick: () => void
+}) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -53,13 +68,34 @@ function Nav() {
           ))}
         </div>
 
-        {/* CTA */}
-        <a href="#pricing" className="hide-mobile"
-          style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', transition: 'background 0.2s' }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#00c070')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#00d97e')}>
-          Subscribe <ChevronRight size={16} />
-        </a>
+        {/* Login + CTA */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }} className="hide-mobile">
+          {isLoggedIn ? (
+            <button onClick={onAccountClick}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#00c070')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#00d97e')}>
+              Account <ChevronRight size={16} />
+            </button>
+          ) : (
+            <>
+              <button onClick={onLoginClick} style={{
+                background: 'none', border: 'none', color: '#6b7587', fontSize: 14,
+                cursor: 'pointer', transition: 'color 0.2s', padding: 0,
+              }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#e8edf5')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#6b7587')}>
+                Log In
+              </button>
+              <button onClick={onSignUpClick}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#00c070')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#00d97e')}>
+                Subscribe <ChevronRight size={16} />
+              </button>
+            </>
+          )}
+        </div>
 
         {/* Hamburger */}
         <button onClick={() => setMenuOpen(v => !v)} className="show-mobile"
@@ -77,10 +113,23 @@ function Nav() {
               {l}
             </a>
           ))}
-          <a href="#pricing"
-            style={{ background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '10px 16px', borderRadius: 8, textDecoration: 'none', textAlign: 'center' }}>
-            Subscribe
-          </a>
+          {isLoggedIn ? (
+            <button onClick={() => { setMenuOpen(false); onAccountClick() }}
+              style={{ background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '10px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'center' }}>
+              Account
+            </button>
+          ) : (
+            <>
+              <button onClick={() => { setMenuOpen(false); onLoginClick() }}
+                style={{ background: 'none', border: 'none', color: '#6b7587', fontSize: 14, textAlign: 'left', cursor: 'pointer', padding: 0 }}>
+                Log In
+              </button>
+              <button onClick={() => { setMenuOpen(false); onSignUpClick() }}
+                style={{ background: '#00d97e', color: '#0a0c0f', fontWeight: 600, fontSize: 14, padding: '10px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'center' }}>
+                Subscribe
+              </button>
+            </>
+          )}
         </div>
       )}
     </nav>
@@ -600,7 +649,7 @@ declare global {
   }
 }
 
-function Pricing() {
+function Pricing({ onNeedsAccount }: { onNeedsAccount: () => void }) {
   const [downloadingV1, setDownloadingV1] = useState(false)
   const [doneV1, setDoneV1] = useState(false)
   const [checkoutStatus, setCheckoutStatus] = useState<'success' | 'cancelled' | null>(null)
@@ -696,7 +745,7 @@ function Pricing() {
               ))}
             </ul>
 
-            <SubscribeButton priceLabel="$10/mo" />
+            <SubscribeButton priceLabel="$10/mo" onNeedsAccount={onNeedsAccount} />
           </div>
 
           {/* Already subscribed / download */}
@@ -885,53 +934,145 @@ function Footer() {
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────────
+type View = 'landing' | 'signup' | 'login' | 'account' | 'docs' | 'support'
+
 export default function App() {
+  const [view, setView] = useState<View>('landing')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session)
+    })
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session)
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
+
+  const globalStyles = (
+    <style>{`
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-10px); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.4; }
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body { background: #0a0c0f; color: #e8edf5; font-family: 'Instrument Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #0a0c0f; }
+      ::-webkit-scrollbar-thumb { background: #232830; border-radius: 3px; }
+      input, button { font-family: inherit; }
+      @media (max-width: 768px) {
+        .hide-mobile { display: none !important; }
+        .show-mobile { display: flex !important; }
+        .screenshots-grid { grid-template-columns: 1fr !important; }
+      }
+      @media (min-width: 769px) {
+        .show-mobile { display: none !important; }
+      }
+        @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(40px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+    `}</style>
+  )
+
+  if (view === 'signup') {
+    return (
+      <>
+        {globalStyles}
+        <SignUpPage
+          onBack={() => setView('landing')}
+          onGoToLogin={() => setView('login')}
+          onSignedUpWithSession={() => setView('account')}
+        />
+      </>
+    )
+  }
+
+  if (view === 'login') {
+    return (
+      <>
+        {globalStyles}
+        <LoginPage
+          onBack={() => setView('landing')}
+          onGoToSignUp={() => setView('signup')}
+          onLoggedIn={() => setView('account')}
+        />
+      </>
+    )
+  }
+
+  if (view === 'account') {
+    return (
+      <>
+        {globalStyles}
+        <AccountPage
+          onBack={() => setView('landing')}
+          onLoggedOut={() => setView('landing')}
+          onNavigate={setView}
+        />
+      </>
+    )
+  }
+
+  if (view === 'docs') {
+    return (
+      <>
+        {globalStyles}
+        <DocsPage
+          onBack={() => setView('landing')}
+          onLoggedOut={() => setView('landing')}
+          onNavigate={setView}
+        />
+      </>
+    )
+  }
+
+  if (view === 'support') {
+    return (
+      <>
+        {globalStyles}
+        <SupportPage
+          onBack={() => setView('landing')}
+          onLoggedOut={() => setView('landing')}
+          onNavigate={setView}
+        />
+      </>
+    )
+  }
+
   return (
     <>
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50%       { transform: translateY(-10px); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.4; }
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { background: #0a0c0f; color: #e8edf5; font-family: 'Instrument Sans', sans-serif; -webkit-font-smoothing: antialiased; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0c0f; }
-        ::-webkit-scrollbar-thumb { background: #232830; border-radius: 3px; }
-        input, button { font-family: inherit; }
-        @media (max-width: 768px) {
-          .hide-mobile { display: none !important; }
-          .show-mobile { display: flex !important; }
-          .screenshots-grid { grid-template-columns: 1fr !important; }
-        }
-        @media (min-width: 769px) {
-          .show-mobile { display: none !important; }
-        }
-          @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(40px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
+      {globalStyles}
       <div style={{ minHeight: '100vh', background: '#0a0c0f' }}>
-        <Nav />
+        <Nav
+          isLoggedIn={isLoggedIn}
+          onLoginClick={() => setView('login')}
+          onSignUpClick={() => setView('signup')}
+          onAccountClick={() => setView('account')}
+        />
         <Hero />
         <Problem />
         <Features />
         <Screenshots />
         <V2Changelog />
-        <Pricing />
+        <Pricing onNeedsAccount={() => setView('signup')} />
         <FAQ />
         <Feedback />
         <Footer />
+
       </div>
     </>
   )
