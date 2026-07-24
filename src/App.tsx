@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   GitBranch, Code2, Shield, Zap,
   ChevronRight, Check, Menu,
@@ -59,10 +59,10 @@ function Nav({
         <div style={{ display: 'flex', alignItems: 'center', gap: 32 }} className="hide-mobile">
           {links.map(l => (
             <a key={l} href={`#${l.toLowerCase()}`}
-              style={{ color: '#A9B4C7', fontSize: 14, textDecoration: 'none', transition: 'color 0.2s' }}
+              style={{ color: '#A9B4C7', fontSize: 13, fontFamily: 'DM Mono, monospace', textDecoration: 'none', transition: 'color 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')}
               onMouseLeave={e => (e.currentTarget.style.color = '#A9B4C7')}>
-              {l}
+              /{l.toLowerCase()}
             </a>
           ))}
         </div>
@@ -108,8 +108,8 @@ function Nav({
         <div style={{ background: '#121723', borderBottom: '1px solid #1C2333', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {links.map(l => (
             <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setMenuOpen(false)}
-              style={{ color: '#A9B4C7', fontSize: 14, textDecoration: 'none' }}>
-              {l}
+              style={{ color: '#A9B4C7', fontSize: 14, fontFamily: 'DM Mono, monospace', textDecoration: 'none' }}>
+              /{l.toLowerCase()}
             </a>
           ))}
           {isLoggedIn ? (
@@ -135,26 +135,103 @@ function Nav({
   )
 }
 
+// ─── ER Diagram Background (decorative) ───────────────────────────────────────
+// A quiet network of "tables" and "foreign keys" drifting behind the hero copy.
+function ERBackground() {
+  const nodes = [
+    { x: 620, y: 70,  w: 92, h: 46, delay: 0,    dur: 7 },
+    { x: 720, y: 210, w: 78, h: 40, delay: 0.6,  dur: 8.5 },
+    { x: 560, y: 300, w: 100, h: 50, delay: 1.2, dur: 6.5 },
+    { x: 690, y: 400, w: 84, h: 42, delay: 0.3,  dur: 9 },
+    { x: 430, y: 40,  w: 70, h: 36, delay: 0.9,  dur: 7.5 },
+    { x: 380, y: 220, w: 64, h: 34, delay: 1.5,  dur: 8 },
+  ]
+  const edges = [
+    [0, 1], [1, 2], [2, 3], [0, 4], [4, 5], [2, 5],
+  ]
+  const center = (n: typeof nodes[number]) => ({ cx: n.x + n.w / 2, cy: n.y + n.h / 2 })
+
+  return (
+    <svg
+      viewBox="0 0 800 480"
+      preserveAspectRatio="xMidYMid slice"
+      style={{ position: 'absolute', top: 0, right: 0, width: '65%', height: '100%', opacity: 0.55, pointerEvents: 'none' }}
+    >
+      {edges.map(([a, b], i) => {
+        const p1 = center(nodes[a])
+        const p2 = center(nodes[b])
+        return (
+          <line key={i} x1={p1.cx} y1={p1.cy} x2={p2.cx} y2={p2.cy}
+            stroke="#1C2333" strokeWidth={1.5} />
+        )
+      })}
+      {nodes.map((n, i) => (
+        <g key={i} style={{
+          animation: `erFloat ${n.dur}s ${n.delay}s ease-in-out infinite`,
+          transformOrigin: `${n.x + n.w / 2}px ${n.y + n.h / 2}px`,
+        }}>
+          <rect x={n.x} y={n.y} width={n.w} height={n.h} rx={8}
+            fill="#121723" stroke="#1C2333" strokeWidth={1.5} />
+          <rect x={n.x} y={n.y} width={n.w} height={n.h * 0.32} rx={8}
+            fill="#1C2333" />
+          <circle cx={n.x + 12} cy={n.y + n.h * 0.16} r={2.5} fill="#A9B4C7" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
+  const [mouse, setMouse] = useState({ x: 50, y: 30 })
+
   return (
-    <section style={{
-      position: 'relative',
-      overflow: 'hidden',
-      paddingTop: 64,
-      background: '#080C14',
-      backgroundImage: `
-        linear-gradient(rgba(169,180,199,0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(169,180,199,0.045) 1px, transparent 1px)
-      `,
-      backgroundSize: '40px 40px',
-    }}>
+    <section
+      onMouseMove={e => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        setMouse({
+          x: ((e.clientX - rect.left) / rect.width) * 100,
+          y: ((e.clientY - rect.top) / rect.height) * 100,
+        })
+      }}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        paddingTop: 64,
+        background: '#080C14',
+        backgroundImage: `
+          linear-gradient(rgba(169,180,199,0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(169,180,199,0.045) 1px, transparent 1px)
+        `,
+        backgroundSize: '40px 40px',
+      }}>
+
+      {/* cursor-following glow */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: `radial-gradient(600px circle at ${mouse.x}% ${mouse.y}%, rgba(169,180,199,0.07), transparent 65%)`,
+        transition: 'background 0.15s ease-out',
+      }} />
+
+      <ERBackground />
+
       <div style={{ position: 'relative', maxWidth: 1152, margin: '0 auto', padding: '48px 24px 56px' }}>
         <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '0.85fr 1.15fr', gap: 48, alignItems: 'center' }}>
 
           {/* Copy */}
-          <div className="hero-copy" style={{ textAlign: 'left' }}>
+          <div className="hero-copy" style={{ textAlign: 'left', position: 'relative' }}>
+            {/* ghost watermark */}
+            <div aria-hidden style={{
+              position: 'absolute', top: -36, left: -8, right: 0,
+              fontFamily: 'DM Mono, monospace', fontSize: 'clamp(20px, 2.6vw, 30px)',
+              color: 'rgba(169,180,199,0.1)', whiteSpace: 'nowrap', letterSpacing: '-0.02em',
+              userSelect: 'none', zIndex: 0,
+            }}>
+              SELECT * FROM sanity;
+            </div>
+
             <h1 style={{
+              position: 'relative', zIndex: 1,
               fontFamily: 'Syne, sans-serif', fontWeight: 800,
               fontSize: 'clamp(38px, 5vw, 60px)',
               lineHeight: 1.08, letterSpacing: '-0.03em',
@@ -201,14 +278,14 @@ function Hero() {
               </a>
             </div>
 
-            <p style={{ marginTop: 14, fontSize: 12, color: '#A9B4C7', animation: 'fadeUp 0.7s 0.4s ease both' }}>
-              Works offline · Windows desktop app · Connects to localhost or remote MySQL
+            <p style={{ marginTop: 14, fontSize: 12, fontFamily: 'DM Mono, monospace', color: '#A9B4C7', animation: 'fadeUp 0.7s 0.4s ease both' }}>
+              works_offline · windows_desktop · localhost_or_remote
             </p>
           </div>
 
           {/* Screenshot */}
           <div style={{ position: 'relative', width: '100%', animation: 'fadeUp 0.7s 0.5s ease both' }}>
-            <div style={{ background: '#121723', border: '1px solid #1C2333', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.45)' }}>
+            <div style={{ background: '#121723', border: '1px solid #1C2333', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.45), inset 0 1px 0 rgba(169,180,199,0.06)' }}>
               <img src="/docs/schemas/diagram-view.png" alt="ER Diagram" style={{ width: '100%', display: 'block' }} />
             </div>
           </div>
@@ -221,15 +298,27 @@ function Hero() {
 
 // ─── Features ─────────────────────────────────────────────────────────────────
 const features = [
-  { icon: GitBranch, color: '#A9B4C7', title: 'Live ER Diagrams',    desc: 'Your full schema renders as an interactive ER diagram the moment you connect. Drag, zoom, and explore every table and FK visually.' },
-  { icon: Table2,    color: '#A9B4C7', title: 'No-SQL Data Editing', desc: 'Click any table to view its data in a clean spreadsheet. Insert rows with auto-generated forms that detect FK fields and give you dropdown selectors.' },
-  { icon: Code2,     color: '#A9B4C7', title: 'Code Generator',      desc: 'Generate production-ready login and auth code from your schema. Pick your identifier and password field — get Java/BCrypt code instantly.' },
-  { icon: Layers,    color: '#A9B4C7', title: 'Multi-Schema',        desc: 'Switch between all your local schemas in one sidebar. Perfect for juggling bank_test, company, hotel_test, and more without losing your place.' },
-  { icon: Zap,       color: '#A9B4C7', title: 'Instant Connection',  desc: 'Connect to localhost or any remote MySQL instance. Store credentials securely. Reconnect in one click.' },
-  { icon: Shield,    color: '#A9B4C7', title: 'Fully Offline',       desc: 'Works without an internet connection. Your database data never leaves your machine — no cloud sync, ever.' },
+  { icon: GitBranch, id: 'T01', title: 'Live ER Diagrams',    desc: 'Your full schema renders as an interactive ER diagram the moment you connect. Drag, zoom, and explore every table and FK visually.' },
+  { icon: Table2,    id: 'T02', title: 'No-SQL Data Editing', desc: 'Click any table to view its data in a clean spreadsheet. Insert rows with auto-generated forms that detect FK fields and give you dropdown selectors.' },
+  { icon: Code2,     id: 'T03', title: 'Code Generator',      desc: 'Generate production-ready login and auth code from your schema. Pick your identifier and password field — get Java/BCrypt code instantly.' },
+  { icon: Layers,    id: 'T04', title: 'Multi-Schema',        desc: 'Switch between all your local schemas in one sidebar. Perfect for juggling bank_test, company, hotel_test, and more without losing your place.' },
+  { icon: Zap,       id: 'T05', title: 'Instant Connection',  desc: 'Connect to localhost or any remote MySQL instance. Store credentials securely. Reconnect in one click.' },
+  { icon: Shield,    id: 'T06', title: 'Fully Offline',       desc: 'Works without an internet connection. Your database data never leaves your machine — no cloud sync, ever.' },
 ]
 
 function Features() {
+  const [visible, setVisible] = useState(false)
+  const sectionRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
+      { threshold: 0.15 }
+    )
+    if (sectionRef.current) obs.observe(sectionRef.current)
+    return () => obs.disconnect()
+  }, [])
+
   return (
     <section id="features" style={{ padding: '64px 0', borderTop: '1px solid #1C2333', background: '#080C14' }}>
       <div style={{ maxWidth: 1152, margin: '0 auto', padding: '0 24px' }}>
@@ -242,14 +331,26 @@ function Features() {
             <span style={{ color: '#A9B4C7' }}>Nothing it doesn't.</span>
           </h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-          {features.map(f => (
+        <div ref={sectionRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+          {features.map((f, i) => (
             <div key={f.title}
-              style={{ padding: 28, background: '#121723', border: '1px solid #1C2333', borderRadius: 20, transition: 'all 0.2s', cursor: 'default' }}
+              style={{
+                padding: 28, background: '#121723', border: '1px solid #1C2333', borderRadius: 20,
+                boxShadow: 'inset 0 1px 0 rgba(169,180,199,0.05)',
+                cursor: 'default',
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(22px)',
+                transition: `opacity 0.6s ${i * 0.08}s ease, transform 0.6s ${i * 0.08}s ease, border-color 0.2s, background 0.2s`,
+              }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#A9B4C7'; e.currentTarget.style.background = '#1C2333' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#1C2333'; e.currentTarget.style.background = '#121723' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, background: '#1C2333' }}>
-                <f.icon size={20} color={f.color} strokeWidth={1.5} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1C2333' }}>
+                  <f.icon size={20} color="#A9B4C7" strokeWidth={1.5} />
+                </div>
+                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#A9B4C7', opacity: 0.6, letterSpacing: '0.05em' }}>
+                  {f.id}
+                </span>
               </div>
               <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#ffffff', marginBottom: 10 }}>{f.title}</h3>
               <p style={{ fontSize: 14, color: '#A9B4C7', lineHeight: 1.7 }}>{f.desc}</p>
@@ -287,7 +388,7 @@ function Screenshots() {
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 32, flexWrap: 'wrap' }}>
           {shots.map((s, i) => (
             <button key={s.label} onClick={() => setActive(i)} style={{
-              padding: '8px 18px', borderRadius: 10, fontSize: 14, fontWeight: 500,
+              padding: '8px 18px', borderRadius: 10, fontSize: 13, fontFamily: 'DM Mono, monospace', fontWeight: 500,
               cursor: 'pointer', transition: 'all 0.2s', border: '1px solid',
               background: active === i ? '#ffffff' : '#121723',
               color: active === i ? '#080C14' : '#A9B4C7',
@@ -300,7 +401,7 @@ function Screenshots() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 40, alignItems: 'start' }} className="screenshots-grid">
           {/* Window */}
-          <div style={{ background: '#121723', border: '1px solid #1C2333', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+          <div style={{ background: '#121723', border: '1px solid #1C2333', borderRadius: 16, overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(169,180,199,0.06)' }}>
             <img key={active} src={shots[active].img} alt={shots[active].title} style={{ width: '100%', display: 'block', animation: 'fadeUp 0.35s ease both' }} />
           </div>
 
@@ -385,30 +486,50 @@ function Pricing({ onNeedsAccount }: { onNeedsAccount: () => void }) {
           </div>
         )}
 
-        <div style={{ maxWidth: 440, margin: '0 auto' }}>
+        <div style={{ maxWidth: 460, margin: '0 auto' }}>
 
           {/* Subscribe card */}
-          <div style={{ position: 'relative', padding: 36, background: '#121723', border: '1px solid #A9B4C7', borderRadius: 24, boxShadow: '0 0 40px rgba(169,180,199,0.08)' }}>
-            <div style={{ position: 'absolute', top: 16, right: 16, background: '#ffffff', color: '#080C14', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999, letterSpacing: '0.05em' }}>
+          <div style={{ position: 'relative', padding: 36, background: '#121723', border: '1px solid #A9B4C7', borderRadius: 24, boxShadow: '0 0 40px rgba(169,180,199,0.08), inset 0 1px 0 rgba(169,180,199,0.06)' }}>
+            <div style={{ position: 'absolute', top: 16, right: 16, background: '#ffffff', color: '#080C14', fontSize: 11, fontFamily: 'DM Mono, monospace', fontWeight: 700, padding: '4px 10px', borderRadius: 999, letterSpacing: '0.05em' }}>
               PRO
             </div>
             <div style={{ marginBottom: 28 }}>
               <div style={{ color: '#A9B4C7', fontSize: 14, marginBottom: 4 }}>Monthly subscription</div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
-                <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 56, color: '#ffffff', lineHeight: 1 }}>$10</span>
-                <span style={{ color: '#A9B4C7', fontSize: 14, marginBottom: 8 }}>/ month</span>
+                <span style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 52, color: '#ffffff', lineHeight: 1 }}>$10</span>
+                <span style={{ color: '#A9B4C7', fontSize: 14, marginBottom: 8, fontFamily: 'DM Mono, monospace' }}>/mo</span>
               </div>
               <div style={{ fontSize: 12, color: '#A9B4C7', marginTop: 4 }}>Billed monthly · Cancel anytime</div>
             </div>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {included.map(item => (
-                <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 14, color: '#ffffff' }}>
-                  <Check size={16} color="#A9B4C7" style={{ flexShrink: 0 }} />
-                  {item}
-                </li>
+            {/* included as a query-result style table */}
+            <div style={{ border: '1px solid #1C2333', borderRadius: 12, overflow: 'hidden', marginBottom: 28 }}>
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 72px',
+                padding: '8px 14px', background: '#1C2333',
+                fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#A9B4C7',
+                textTransform: 'uppercase', letterSpacing: '0.1em',
+              }}>
+                <span>feature</span>
+                <span style={{ textAlign: 'right' }}>status</span>
+              </div>
+              {included.map((item, i) => (
+                <div key={item} style={{
+                  display: 'grid', gridTemplateColumns: '1fr 72px',
+                  alignItems: 'center', padding: '10px 14px',
+                  background: i % 2 === 0 ? '#121723' : '#080C14',
+                  borderTop: '1px solid #1C2333',
+                }}>
+                  <span style={{ fontSize: 13, color: '#ffffff' }}>{item}</span>
+                  <span style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
+                    fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#A9B4C7',
+                  }}>
+                    <Check size={13} color="#A9B4C7" /> true
+                  </span>
+                </div>
               ))}
-            </ul>
+            </div>
 
             <SubscribeButton priceLabel="$10/mo" onNeedsAccount={onNeedsAccount} />
           </div>
@@ -445,14 +566,18 @@ function FAQ() {
             <div key={i} style={{ background: '#121723', border: '1px solid #1C2333', borderRadius: 14, overflow: 'hidden', transition: 'border-color 0.2s' }}>
               <button onClick={() => setOpen(open === i ? null : i)} style={{
                 width: '100%', textAlign: 'left', padding: '18px 24px',
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                display: 'flex', alignItems: 'center', gap: 12,
                 background: 'none', border: 'none', cursor: 'pointer',
               }}>
-                <span style={{ fontWeight: 500, color: '#ffffff', fontSize: 15, lineHeight: 1.4 }}>{faq.q}</span>
+                <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#A9B4C7', opacity: 0.6, flexShrink: 0 }}>
+                  row_{String(i + 1).padStart(2, '0')}
+                </span>
+                <span style={{ fontWeight: 500, color: '#ffffff', fontSize: 15, lineHeight: 1.4, flex: 1 }}>{faq.q}</span>
                 <ChevronDown size={18} color="#A9B4C7" style={{ flexShrink: 0, transform: open === i ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
               </button>
               {open === i && (
-                <div style={{ padding: '0 24px 20px', fontSize: 14, color: '#A9B4C7', lineHeight: 1.75, borderTop: '1px solid #1C2333', paddingTop: 16 }}>
+                <div style={{ padding: '0 24px 20px 58px', fontSize: 14, color: '#A9B4C7', lineHeight: 1.75, borderTop: '1px solid #1C2333', paddingTop: 16 }}>
+                  <span style={{ fontFamily: 'DM Mono, monospace', color: '#A9B4C7', opacity: 0.6, marginRight: 6 }}>→</span>
                   {faq.a}
                 </div>
               )}
@@ -579,6 +704,10 @@ export default function App() {
       @keyframes pulse {
         0%, 100% { opacity: 1; }
         50%       { opacity: 0.4; }
+      }
+      @keyframes erFloat {
+        0%, 100% { transform: translate(0, 0); }
+        50%       { transform: translate(6px, -10px); }
       }
       * { box-sizing: border-box; margin: 0; padding: 0; }
       html { scroll-behavior: smooth; }
