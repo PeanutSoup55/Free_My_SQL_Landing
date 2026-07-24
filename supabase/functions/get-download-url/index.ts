@@ -23,7 +23,8 @@ const supabaseAdmin = createClient(
 // TODO: point this at an unlisted release/tag — not the same one linked
 // from the public beta download button.
 const DOWNLOAD_URL =
-  "https://github.com/PeanutSoup55/FreeMy-SQL/releases/download/v3.0-pro/Free.My.Query-1.0.exe";
+
+  "https://github.com/PeanutSoup55/FreeMy-SQL/releases/download/v3.0/Free.My.Query-1.0.exe";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

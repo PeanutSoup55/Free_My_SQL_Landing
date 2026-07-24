@@ -219,7 +219,7 @@ function Hero() {
                   Free My Query — clinic_test
                 </span>
               </div>
-              <img src="/screenshot-er.png" alt="ER Diagram" style={{ width: '100%', display: 'block' }} />
+              <img src="/docs/schemas/diagram-view.png" alt="ER Diagram" style={{ width: '100%', display: 'block' }} />
             </div>
           </div>
 
@@ -273,10 +273,10 @@ function Features() {
 
 // ─── Screenshots ──────────────────────────────────────────────────────────────
 const shots = [
-  { img: '/screenshot-er.png',     label: 'ER Diagram',     title: 'See your entire schema at a glance',   desc: 'Every table, every FK, every relationship — rendered as a draggable, zoomable diagram. No setup required.' },
-  { img: '/screenshot-data.png',   label: 'Data Explorer',  title: 'Browse and edit data without SQL',     desc: 'Click any table to inspect rows. The inline view shows all columns, data types, and live data.' },
-  { img: '/screenshot-insert.png', label: 'Row Insertion',  title: 'Insert rows with smart forms',         desc: 'FK fields auto-detect and show you a dropdown of valid references. No more looking up IDs manually.' },
-  { img: '/screenshot-login.png',  label: 'Code Generator', title: 'Generate auth code from your schema',  desc: 'Pick your email and password columns, hit Generate, get a complete BCrypt login system for your Java project.' },
+  { img: '/docs/schemas/diagram-view.png', label: 'ER Diagram',     title: 'See your entire schema at a glance',   desc: 'Every table, every FK, every relationship — rendered as a draggable, zoomable diagram. No setup required.' },
+  { img: '/docs/schemas/edit-table.png',   label: 'Data Explorer',  title: 'Browse and edit data without SQL',     desc: 'Click any table to inspect rows. The inline view shows all columns, data types, and live data.' },
+  { img: '/docs/schemas/crud-data.png',    label: 'Row Insertion',  title: 'Insert rows with smart forms',         desc: 'FK fields auto-detect and show you a dropdown of valid references. No more looking up IDs manually.' },
+  { img: '/docs/schemas/codegen.png',      label: 'Code Generator', title: 'Generate auth code from your schema',  desc: 'Pick your email and password columns, hit Generate, get a complete BCrypt login system for your Java project.' },
 ]
 
 function Screenshots() {
@@ -361,22 +361,22 @@ function V2Changelog() {
     {
       title: 'Improved Layout Algorithm',
       desc: 'Smarter force-directed positioning keeps related tables closer together with far less overlap out of the box. Tables that share foreign keys are pulled toward each other automatically.',
-      img: '/layout.png',
+      img: '/docs/schemas/diagram-view.png',
     },
     {
       title: 'Upgraded Schema Sidebar',
       desc: 'Collapsible sections, inline search, table count badges, and separate Local / Remote schema groups. Generate login code right from the schema context menu — no need to dig into each table.',
-      img: '/sidebar.png',
+      img: '/docs/schemas/edit-schema.png',
     },
     {
       title: 'Integrated Feedback System',
       desc: 'Send feedback with a star rating directly from inside the app — no browser, no email client, no interruption to your workflow. Beta feedback shapes what gets built next.',
-      img: '/feedback.png',
+      img: '/docs/account/account-settings.png',
     },
     {
       title: 'Redesigned Login Screen',
       desc: 'Connection profiles, separate Host and Port fields, User Initials, and a cleaner layout make connecting to local or remote MySQL instant. Save multiple profiles and switch between them in one click.',
-      img: '/login.png',
+      img: '/docs/credentials/profiles.png',
     },
   ]
 
@@ -603,6 +603,7 @@ function Pricing({ onNeedsAccount }: { onNeedsAccount: () => void }) {
     'Full desktop app (Windows)',
     'Unlimited schemas & tables',
     'Live ER diagram editor',
+    'SSH support for existing tunnels',
     'No-SQL data management',
     'Code generator (Java / BCrypt)',
     'All future updates included',
